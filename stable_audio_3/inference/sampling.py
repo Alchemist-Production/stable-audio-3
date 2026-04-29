@@ -475,12 +475,6 @@ def sample_diffusion(
         **sampler_kwargs
     }
 
-    import time
-
-    # Sample based on diffusion objective
-    if noise.device.type == "cuda":
-        torch.cuda.synchronize()
-    _t_diffusion = time.perf_counter()
 
     if diffusion_objective in ["rectified_flow", "rf_denoiser"]:
         # Remove v-diffusion-specific kwargs that don't apply to RF
