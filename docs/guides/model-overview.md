@@ -79,10 +79,10 @@ We use rectified flow aka flow-matching as our main training objective. The math
 
 **2. Adversarial Post-Training**
 
-After RF training, the model undergoes a final refinement stage to improve quality and reduce latency, producing the final checkpoint used for inference. There is technically a middle stage here called "distillation warmup" which helps bridge the gap between the two stages. During this stage, a discriminator model with the same architecture as the  the pre-trained model is fine-tuned with three complementary losses:
+After RF training, the model undergoes a final refinement stage to improve quality and reduce latency, producing the final checkpoint used for inference. There is also a middle stage here called "distillation warmup" which helps bridge the gap between the two stages. During this stage, a discriminator model with the same architecture as the pre-trained model is fine-tuned with three complementary losses:
 
 - **Adversarial relativistic loss** — Uses a discriminator like a GAN. Helps with perceptual quality.
-- **Contrastive loss** - Regularizes latent space so that paired prompts and audios are close together. This helps the discriminator be semantically alligned.
+- **Contrastive loss** - Regularizes latent space so that paired prompts and audios are close together. This helps the discriminator be semantically aligned.
 - **[CLAP](https://github.com/LAION-AI/CLAP) loss**
 
 There are four DiT variants:

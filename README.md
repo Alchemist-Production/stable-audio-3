@@ -136,7 +136,7 @@ from stable_audio_3 import StableAudioModel
 
 model = StableAudioModel.from_pretrained("medium")
 audio = model.generate(
-    prompt="House music that encapsulates the feeling of being at a festival in the sunny whether with all your friends 124 BPM",
+    prompt="House music that encapsulates the feeling of being at a festival in the sunny weather with all your friends 124 BPM",
     duration=180,
 )
 ```
