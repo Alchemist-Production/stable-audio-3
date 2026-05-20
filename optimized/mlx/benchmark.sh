@@ -32,4 +32,7 @@ command -v uv >/dev/null 2>&1 || \
     fail "scripts/benchmark.py not found — repo files are missing."
 
 cd "$SCRIPT_DIR"
-exec uv run --no-project --quiet python scripts/benchmark.py "$@"
+# Invoke .venv/bin/python directly (same reasoning as ./sa3 — uv run
+# walks up to a parent pyproject.toml and --no-project creates an
+# empty ephemeral env in newer uv versions).
+exec "$SCRIPT_DIR/.venv/bin/python" scripts/benchmark.py "$@"

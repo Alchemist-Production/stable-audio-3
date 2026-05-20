@@ -71,9 +71,10 @@ if [[ $needs_install -eq 1 ]]; then
     prompt_install "Setup incomplete — missing: ${missing[*]}"
 fi
 
-# ── hand off to scripts/sa3_mlx.py via uv ───────────────────────────────────
-# --no-project keeps uv from walking up the tree and using a parent
-# pyproject.toml's environment instead of our local .venv (matters when
-# this directory lives inside a larger Python project).
+# ── hand off to scripts/sa3_mlx.py ──────────────────────────────────────────
+# Invoke .venv/bin/python directly rather than via `uv run`. `uv run` walks
+# up looking for a pyproject.toml and (in newer uv versions) with
+# --no-project will create an ephemeral env with no deps, ignoring our
+# .venv. Direct invocation is shorter, faster, and side-steps both bugs.
 cd "$SCRIPT_DIR"
-exec uv run --no-project --quiet python scripts/sa3_mlx.py "$@"
+exec "$SCRIPT_DIR/.venv/bin/python" scripts/sa3_mlx.py "$@"
