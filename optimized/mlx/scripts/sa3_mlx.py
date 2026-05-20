@@ -30,7 +30,7 @@ from models.defs.sa3_pipeline import (
     load_conditioner_from_npz,
 )
 from models.defs.t5gemma_mlx import T5Gemma
-from weights import ensure_local
+from weights import ensure_local, is_present
 
 SAMPLE_RATE = 44100
 SAMPLES_PER_LATENT = 4096  # PatchedPretransform downsample × SAME 16× expansion
@@ -272,6 +272,27 @@ def load_encoder(decoder_name: str, dtype):
     return model, pad_modulo
 
 
+def _preflight_download(args) -> None:
+    """Resolve every weight file this run needs and download any that are
+    missing — BEFORE the banner prints and BEFORE the wall-clock starts.
+    Network time then isn't charged against "×realtime" and the user sees
+    download progress as a clearly separate setup step."""
+    needed = [
+        T5GEMMA_NPZ_REL,
+        DIT_CHOICES[args.dit]["ckpt"],
+        DECODER_CHOICES[args.decoder][3],
+    ]
+    if args.init_audio:
+        needed.append(ENCODER_CHOICES[args.decoder][2])
+    missing = [p for p in needed if not is_present(p)]
+    if not missing:
+        return
+    print(f"  Fetching {len(missing)} missing weight file(s) before starting:")
+    for rel in missing:
+        ensure_local(rel)
+    print()
+
+
 def patch_audio(audio: np.ndarray, patch_size: int = 256) -> np.ndarray:
     """Patched-pretransform encode: (B, 2, T_audio) → (B, 512, T_audio/256).
     Mirrors rearrange("b c (l h) -> b (c h) l", h=patch_size)."""
@@ -456,12 +477,6 @@ def main():
     mode = ("inpaint" if inpaint_range else
             "audio-to-audio" if args.init_audio else "text-to-audio")
 
-    global _CUMULATIVE_PEAK_B
-    _CUMULATIVE_PEAK_B = 0
-    _STAGE_PEAKS.clear()
-    _reset_peak_mem()
-    t_wall_start = time.time()
-
     # Reject very low σmax in any mode — the diffusion model was never trained
     # at t≈0 and produces NaN/garbage there.
     MIN_SIGMA = 0.01
@@ -472,6 +487,17 @@ def main():
             f"collapses and the model emits NaN. Pass --init-noise-level=1.0 for normal "
             f"text-to-audio, or use the input WAV directly if you want it unchanged."
         )
+
+    # ── Preflight: ensure every weight file this run needs is on disk BEFORE
+    # we print the banner or start the wall-time clock. ensure_local() prints
+    # a "↓ downloading …" line per missing file and symlinks from the HF cache.
+    _preflight_download(args)
+
+    global _CUMULATIVE_PEAK_B
+    _CUMULATIVE_PEAK_B = 0
+    _STAGE_PEAKS.clear()
+    _reset_peak_mem()
+    t_wall_start = time.time()
 
     print()
     banner(f"SA3 → MLX  {mode}")
