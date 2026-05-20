@@ -1,5 +1,5 @@
 # Stable Audio 3 Model
-> For a more in-depth breakdown of Stable Audio 3, please see our [tech report]().
+> For a more in-depth breakdown of Stable Audio 3, please see our [tech report](https://arxiv.org/abs/2605.17991).
 
 Stable Audio 3 is a family of text-conditioned audio generation models.
 
@@ -102,7 +102,7 @@ There are four Diffusion Transformer variants:
 | `small-music` | ~2min | 433M | SAME-S | This repo |
 | `small-sfx` | ~2min | 433M | SAME-S | This repo |
 | `medium` | ~4.75min | 1.4B | SAME-L | This repo |
-| `large` | ~6.3min | 2.7B | SAME-L | [API only](#) |
+| `large` | ~6.3min | 2.7B | SAME-L | [API only](https://stableaudio.com/) |
 
 ## Provided Checkpoints
 Checkpoints aka weights are the saved model artifacts that you use for inference.
