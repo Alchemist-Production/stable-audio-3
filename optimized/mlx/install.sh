@@ -115,4 +115,9 @@ VIRTUAL_ENV="$VENV_DIR" uv pip install -r "$SCRIPT_DIR/requirements.txt"
 
 # ── hand off to install.py for the interactive prompt ───────────────────────
 step "Choose which model bundles to download"
-INSTALL_SKIP_PIP=1 exec "$VENV_DIR/bin/python" "$SCRIPT_DIR/scripts/install.py" "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}"
+# Forward `-y` to install.py so its bundle picker is also non-interactive.
+PY_FORWARD_ARGS=()
+[[ "$ASSUME_YES" -eq 1 ]] && PY_FORWARD_ARGS+=(-y)
+INSTALL_SKIP_PIP=1 exec "$VENV_DIR/bin/python" "$SCRIPT_DIR/scripts/install.py" \
+    "${PY_FORWARD_ARGS[@]+"${PY_FORWARD_ARGS[@]}"}" \
+    "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}"

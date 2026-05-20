@@ -57,15 +57,26 @@ def check_environment() -> None:
 
 
 def ask_yes_no(question: str, default: bool = False) -> bool:
+    """Prompt for y/N. Reads from /dev/tty so it works even when stdin is a
+    pipe (curl|bash). Returns `default` silently if no controlling TTY exists
+    (CI, etc.) — and on invalid input, instead of looping forever.
+    """
     suffix = " [Y/n]" if default else " [y/N]"
-    while True:
-        a = input(f"  {question}{suffix} ").strip().lower()
-        if a == "":
-            return default
-        if a in ("y", "yes"):
-            return True
-        if a in ("n", "no"):
-            return False
+    prompt = f"  {question}{suffix} "
+    try:
+        with open("/dev/tty", "r") as tty:
+            print(prompt, end="", flush=True)
+            a = tty.readline().strip().lower()
+            print()  # newline after the user's answer (they typed it on /dev/tty)
+    except OSError:
+        return default
+    if a == "":
+        return default
+    if a in ("y", "yes"):
+        return True
+    if a in ("n", "no"):
+        return False
+    return default
 
 
 def pip_install_requirements() -> None:
@@ -107,6 +118,16 @@ def _have(binary: str) -> bool:
 
 
 def main() -> None:
+    import argparse
+    ap = argparse.ArgumentParser(
+        description="SA3 MLX install — bundle picker + post-install help.",
+        epilog="Normally invoked via ../install.sh, not directly.",
+    )
+    ap.add_argument("-y", "--yes", action="store_true",
+                    help="Non-interactive: skip the bundle picker entirely. "
+                         "Weights are auto-downloaded by sa3_mlx.py on first use.")
+    cli = ap.parse_args()
+
     check_environment()
     pip_install_requirements()
 
@@ -119,19 +140,22 @@ def main() -> None:
         mark = "✓" if present == total else " "
         print(f"  [{mark}] {name:9s}  {present}/{total} files present   ({BUNDLE_SIZES[name]})")
 
-    step("Which models do you want to download?")
-    print("  Skip any that you already have — files already present are not re-downloaded.\n")
-
     chosen: list[str] = []
-    # Default to medium being on; smalls off, so a one-shot user gets the higher-quality model.
-    defaults = {"medium": True, "sm-music": False, "sm-sfx": False}
-    for name in DIT_BUNDLES:
-        present, total = bundle_status(name)
-        if present == total:
-            print(f"  · {name} — already complete, skipping prompt")
-            continue
-        if ask_yes_no(f"Download {name}?  ({BUNDLE_SIZES[name]})", default=defaults[name]):
-            chosen.append(name)
+    if cli.yes:
+        step("--yes: skipping bundle picker (weights auto-download on first ./sa3 use)")
+    else:
+        step("Which models do you want to download?")
+        print("  Skip any that you already have — files already present are not re-downloaded.\n")
+
+        # Default to medium being on; smalls off, so a one-shot user gets the higher-quality model.
+        defaults = {"medium": True, "sm-music": False, "sm-sfx": False}
+        for name in DIT_BUNDLES:
+            present, total = bundle_status(name)
+            if present == total:
+                print(f"  · {name} — already complete, skipping prompt")
+                continue
+            if ask_yes_no(f"Download {name}?  ({BUNDLE_SIZES[name]})", default=defaults[name]):
+                chosen.append(name)
 
     if chosen:
         step(f"Downloading {len(chosen)} bundle(s)")
