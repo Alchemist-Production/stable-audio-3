@@ -188,6 +188,7 @@ def main() -> int:
 
     print("━" * 72)
     print(f"  Results  ({len(rows)}/{len(CONFIGS)*len(SECONDS)} cells succeeded)")
+    print(f"  Hardware: {hwinfo()}")
     print("━" * 72)
     print()
     print(render_table(rows))
