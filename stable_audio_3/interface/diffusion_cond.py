@@ -16,7 +16,7 @@ from stable_audio_3.models.lora import has_lora
 from stable_audio_3.interface.reprompt import reprompt as _reprompt_fn, get_model as _reprompt_get_model, is_model_cached as _reprompt_is_model_cached
 
 stable_audio_3_model = None
-sample_size = 5324800
+sample_size = 26460000
 sample_rate = 44100
 n_loras = 0
 _LENGTH_EXTRACT_RE = re.compile(r' Length: (\d+) seconds\.?\s*$')
@@ -358,7 +358,7 @@ def create_sampling_ui(stable_audio_3_model, default_prompt=None):
                         sigma_max_max = 1.0
                         sigma_max_default = 1.0
                     else:
-                        sampler_types = ["dpmpp-2m-sde", "dpmpp-3m-sde", "dpmpp-2m", "k-heun", "k-lms", "k-dpmpp-2s-ancestral", "k-dpm-2", "k-dpm-adaptive", "k-dpm-fast", "v-ddim", "v-ddim-cfgpp"]
+                        sampler_types = ["dpmpp-2m-sde", "dpmpp-3m-sde", "dpmpp-2m", "k-heun", "k-lms", "k-dpmpp-2s-ancestral", "k-dpm-2", "k-dpm-adaptive", "k-dpm-fast", "v-ddim", "v-ddim-cfgpp"[...]
                         default_sampler_type = "dpmpp-3m-sde"
                         sigma_max_max = 1000.0
                         sigma_max_default = 100.0
