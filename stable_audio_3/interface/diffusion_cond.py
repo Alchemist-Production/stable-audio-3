@@ -358,7 +358,7 @@ def create_sampling_ui(stable_audio_3_model, default_prompt=None):
                         sigma_max_max = 1.0
                         sigma_max_default = 1.0
                     else:
-                        sampler_types = ["dpmpp-2m-sde", "dpmpp-3m-sde", "dpmpp-2m", "k-heun", "k-lms", "k-dpmpp-2s-ancestral", "k-dpm-2", "k-dpm-adaptive", "k-dpm-fast", "v-ddim", "v-ddim-cfgpp"[...]
+                        sampler_types = ["dpmpp-2m-sde", "dpmpp-3m-sde", "dpmpp-2m", "k-heun", "k-lms", "k-dpmpp-2s-ancestral", "k-dpm-2", "k-dpm-adaptive", "k-dpm-fast", "v-ddim", "v-ddim-cfgpp"]
                         default_sampler_type = "dpmpp-3m-sde"
                         sigma_max_max = 1000.0
                         sigma_max_default = 100.0
